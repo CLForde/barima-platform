@@ -1,65 +1,307 @@
-import Image from "next/image";
+import Link from 'next/link';
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <main
+      style={{ fontFamily: 'system-ui, sans-serif', margin: 0, padding: 0 }}
+    >
+      {/* NAVBAR */}
+      <nav
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '16px 32px',
+          background: 'white',
+          borderBottom: '1px solid #e2e8f0',
+          position: 'sticky',
+          top: 0,
+          zIndex: 100,
+        }}
+      >
+        <div style={{ fontWeight: 800, fontSize: '1.25rem', color: '#0f172a' }}>
+          Barima<span style={{ color: '#f97316' }}>Venture</span>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+        <Link
+          href='/dashboard/site-builder'
+          style={{
+            background: '#f97316',
+            color: 'white',
+            padding: '10px 20px',
+            borderRadius: '12px',
+            fontWeight: 600,
+            fontSize: '14px',
+            textDecoration: 'none',
+          }}
+        >
+          Get Started Free
+        </Link>
+      </nav>
+
+      {/* HERO */}
+      <section
+        style={{
+          background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+          color: 'white',
+          padding: '80px 24px',
+          textAlign: 'center',
+        }}
+      >
+        <p
+          style={{
+            display: 'inline-block',
+            background: 'rgba(249,115,22,0.15)',
+            color: '#fb923c',
+            padding: '6px 16px',
+            borderRadius: '999px',
+            fontSize: '13px',
+            fontWeight: 600,
+            marginBottom: '24px',
+          }}
+        >
+          🟢 NOW LIVE — Join the platform
+        </p>
+        <h1
+          style={{
+            fontSize: 'clamp(2rem, 5vw, 3.5rem)',
+            fontWeight: 800,
+            lineHeight: 1.15,
+            margin: '0 auto',
+            maxWidth: '700px',
+          }}
+        >
+          Build Your <span style={{ color: '#f97316' }}>Presence,</span>
+          <br />
+          Grow Your <span style={{ color: '#22c55e' }}>Business.</span>
+        </h1>
+        <p
+          style={{
+            marginTop: '24px',
+            color: '#94a3b8',
+            fontSize: '1.1rem',
+            maxWidth: '520px',
+            margin: '24px auto 0',
+            lineHeight: 1.7,
+          }}
+        >
+          The simplest way to get your business online. No coding, no confusion
+          — just your business, looking professional, live in minutes.
+        </p>
+        <div
+          style={{
+            marginTop: '40px',
+            display: 'flex',
+            gap: '16px',
+            justifyContent: 'center',
+            flexWrap: 'wrap',
+          }}
+        >
+          <Link
+            href='/dashboard/site-builder'
+            style={{
+              background: '#f97316',
+              color: 'white',
+              padding: '14px 32px',
+              borderRadius: '14px',
+              fontWeight: 700,
+              fontSize: '15px',
+              textDecoration: 'none',
+            }}
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+            Create Your Website Free
+          </Link>
         </div>
-      </main>
-    </div>
+      </section>
+
+      {/* STATS */}
+      <section
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          gap: '48px',
+          flexWrap: 'wrap',
+          padding: '40px 24px',
+          background: 'white',
+          borderBottom: '1px solid #e2e8f0',
+        }}
+      >
+        {[
+          { value: '5min', label: 'To go live' },
+          { value: '100%', label: 'Free to start' },
+          { value: 'GY', label: 'Built for Guyana' },
+        ].map((stat) => (
+          <div key={stat.label} style={{ textAlign: 'center' }}>
+            <p
+              style={{
+                fontSize: '1.75rem',
+                fontWeight: 800,
+                color: '#f97316',
+                margin: 0,
+              }}
+            >
+              {stat.value}
+            </p>
+            <p
+              style={{ fontSize: '14px', color: '#64748b', margin: '4px 0 0' }}
+            >
+              {stat.label}
+            </p>
+          </div>
+        ))}
+      </section>
+
+      {/* HOW IT WORKS */}
+      <section
+        style={{
+          padding: '64px 24px',
+          background: '#f8fafc',
+          textAlign: 'center',
+        }}
+      >
+        <p
+          style={{
+            color: '#f97316',
+            fontWeight: 700,
+            fontSize: '13px',
+            letterSpacing: '0.1em',
+          }}
+        >
+          HOW IT WORKS
+        </p>
+        <h2
+          style={{
+            fontSize: '2rem',
+            fontWeight: 800,
+            color: '#0f172a',
+            margin: '8px 0 48px',
+          }}
+        >
+          3 Simple Steps
+        </h2>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            gap: '24px',
+            flexWrap: 'wrap',
+            maxWidth: '900px',
+            margin: '0 auto',
+          }}
+        >
+          {[
+            {
+              step: '1',
+              title: 'Fill in your details',
+              desc: 'Enter your business name, services, and contact info.',
+            },
+            {
+              step: '2',
+              title: 'Preview your site',
+              desc: 'See exactly how your site will look before going live.',
+            },
+            {
+              step: '3',
+              title: 'Publish instantly',
+              desc: 'Hit publish and share your link with customers right away.',
+            },
+          ].map((item) => (
+            <div
+              key={item.step}
+              style={{
+                background: 'white',
+                borderRadius: '20px',
+                padding: '32px 24px',
+                width: '260px',
+                boxShadow: '0 1px 4px rgba(0,0,0,0.07)',
+                border: '1px solid #e2e8f0',
+              }}
+            >
+              <div
+                style={{
+                  width: '48px',
+                  height: '48px',
+                  background: '#0f172a',
+                  color: 'white',
+                  borderRadius: '50%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontWeight: 800,
+                  fontSize: '1.1rem',
+                  margin: '0 auto 16px',
+                }}
+              >
+                {item.step}
+              </div>
+              <h3
+                style={{
+                  fontWeight: 700,
+                  fontSize: '1rem',
+                  color: '#0f172a',
+                  margin: '0 0 8px',
+                }}
+              >
+                {item.title}
+              </h3>
+              <p
+                style={{
+                  fontSize: '14px',
+                  color: '#64748b',
+                  lineHeight: 1.6,
+                  margin: 0,
+                }}
+              >
+                {item.desc}
+              </p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section
+        style={{
+          background: '#0f172a',
+          color: 'white',
+          textAlign: 'center',
+          padding: '64px 24px',
+        }}
+      >
+        <h2 style={{ fontSize: '2rem', fontWeight: 800, margin: '0 0 16px' }}>
+          Ready to go live?
+        </h2>
+        <p style={{ color: '#94a3b8', marginBottom: '32px', fontSize: '1rem' }}>
+          It takes less than 5 minutes. No credit card required.
+        </p>
+        <Link
+          href='/dashboard/site-builder'
+          style={{
+            background: '#f97316',
+            color: 'white',
+            padding: '14px 36px',
+            borderRadius: '14px',
+            fontWeight: 700,
+            fontSize: '15px',
+            textDecoration: 'none',
+          }}
+        >
+          Build My Site Now
+        </Link>
+      </section>
+
+      {/* FOOTER */}
+      <footer
+        style={{
+          background: 'white',
+          borderTop: '1px solid #e2e8f0',
+          textAlign: 'center',
+          padding: '24px',
+          fontSize: '13px',
+          color: '#94a3b8',
+        }}
+      >
+        © 2026 BarimaVenture. Built in Guyana. All rights reserved.
+      </footer>
+    </main>
   );
 }
