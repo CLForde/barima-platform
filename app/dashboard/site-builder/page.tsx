@@ -140,9 +140,9 @@ export default function SiteBuilderPage() {
         throw new Error(result.error);
       }
 
-      const siteId = result.id;
+      const siteSlug = result.slug;
 
-      router.push(`/sites/${siteId}`);
+      router.push(`/sites/${siteSlug}`);
     } catch (error) {
       console.error(error);
       alert('Failed to publish site');

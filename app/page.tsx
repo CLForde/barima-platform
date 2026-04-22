@@ -23,7 +23,7 @@ export default function Home() {
           Barima<span style={{ color: '#f97316' }}>Venture</span>
         </div>
         <Link
-          href='/dashboard/site-builder'
+          href='/login'
           style={{
             background: '#f97316',
             color: 'white',
@@ -97,7 +97,7 @@ export default function Home() {
           }}
         >
           <Link
-            href='/dashboard/site-builder'
+            href='/login'
             style={{
               background: '#f97316',
               color: 'white',
@@ -274,7 +274,7 @@ export default function Home() {
           It takes less than 5 minutes. No credit card required.
         </p>
         <Link
-          href='/dashboard/site-builder'
+          href='/login'
           style={{
             background: '#f97316',
             color: 'white',
