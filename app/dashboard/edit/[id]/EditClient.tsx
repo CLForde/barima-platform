@@ -3,6 +3,7 @@
 import { ChangeEvent, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { uploadSiteImage } from '@/lib/image-upload';
 
 type Service = {
   name: string;
@@ -36,9 +37,18 @@ export default function EditClient({
 
   const [step, setStep] = useState(1);
   const [isSaving, setIsSaving] = useState(false);
+  const [isHeroUploading, setIsHeroUploading] = useState(false);
+  const [serviceUploadState, setServiceUploadState] = useState<boolean[]>([
+    false,
+    false,
+    false,
+  ]);
   const [formData, setFormData] = useState<FormDataType>(initialData);
 
   const totalSteps = 4;
+  const uploadFolder = `site-${siteId}`;
+  const hasPendingUpload =
+    isHeroUploading || serviceUploadState.some((isUploading) => isUploading);
 
   const filledServices = useMemo(
     () =>
@@ -68,17 +78,64 @@ export default function EditClient({
       return { ...prev, services: updated };
     });
 
+  const setServiceUploading = (index: number, value: boolean) => {
+    setServiceUploadState((prev) => {
+      const next = [...prev];
+      next[index] = value;
+      return next;
+    });
+  };
+
+  const handleHeroImageUpload = async (
+    event: ChangeEvent<HTMLInputElement>,
+  ) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setIsHeroUploading(true);
+      const imageUrl = await uploadSiteImage(file, `${uploadFolder}/hero`);
+      setFormData((prev) => ({
+        ...prev,
+        heroImage: imageUrl,
+      }));
+    } catch (error) {
+      console.error('Failed to upload hero image:', error);
+      alert(
+        error instanceof Error
+          ? error.message
+          : 'Could not upload that image. Please try another file.',
+      );
+    } finally {
+      setIsHeroUploading(false);
+      event.target.value = '';
+    }
+  };
+
   const handleServiceImageUpload = async (
     index: number,
     event: ChangeEvent<HTMLInputElement>,
   ) => {
     const file = event.target.files?.[0];
     if (!file) return;
+
     try {
-      const base64 = await fileToBase64(file);
-      updateServiceField(index, 'image', base64);
-    } catch {
-      alert('Could not read that image. Please try another file.');
+      setServiceUploading(index, true);
+      const imageUrl = await uploadSiteImage(
+        file,
+        `${uploadFolder}/services/service-${index + 1}`,
+      );
+      updateServiceField(index, 'image', imageUrl);
+    } catch (error) {
+      console.error('Failed to upload service image:', error);
+      alert(
+        error instanceof Error
+          ? error.message
+          : 'Could not upload that image. Please try another file.',
+      );
+    } finally {
+      setServiceUploading(index, false);
+      event.target.value = '';
     }
   };
 
@@ -127,7 +184,6 @@ export default function EditClient({
   return (
     <div className="min-h-screen bg-slate-50">
       <div className="mx-auto w-full max-w-3xl px-4 py-6 sm:px-6 sm:py-10">
-        {/* Header */}
         <div className="mb-6 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200 sm:p-7">
           <div className="flex items-center justify-between">
             <div>
@@ -168,7 +224,6 @@ export default function EditClient({
           </div>
         </div>
 
-        {/* Step tabs */}
         <div className="mb-5 flex flex-wrap gap-2">
           {['Basic Info', 'Services', 'Contact', 'Preview'].map(
             (label, index) => {
@@ -190,7 +245,6 @@ export default function EditClient({
         </div>
 
         <div className="rounded-3xl bg-white p-4 shadow-sm ring-1 ring-slate-200 sm:p-6">
-          {/* STEP 1 — Basic Info */}
           {step === 1 && (
             <section>
               <h2 className="text-xl font-semibold text-slate-900">
@@ -244,21 +298,14 @@ export default function EditClient({
                     id="heroImage"
                     type="file"
                     accept="image/*"
-                    onChange={async (e) => {
-                      const file = e.target.files?.[0];
-                      if (!file) return;
-                      try {
-                        const base64 = await fileToBase64(file);
-                        setFormData((prev) => ({
-                          ...prev,
-                          heroImage: base64,
-                        }));
-                      } catch {
-                        alert('Could not read that image.');
-                      }
-                    }}
+                    onChange={handleHeroImageUpload}
                     className="block w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm text-slate-700 file:mr-4 file:rounded-xl file:border-0 file:bg-slate-900 file:px-4 file:py-2 file:text-sm file:font-medium file:text-white"
                   />
+                  {isHeroUploading && (
+                    <p className="mt-2 text-sm text-sky-600">
+                      Uploading hero image...
+                    </p>
+                  )}
                   {formData.heroImage && (
                     <div className="mt-4">
                       <img
@@ -282,7 +329,6 @@ export default function EditClient({
             </section>
           )}
 
-          {/* STEP 2 — Services */}
           {step === 2 && (
             <section>
               <h2 className="text-xl font-semibold text-slate-900">
@@ -354,11 +400,14 @@ export default function EditClient({
                         <input
                           type="file"
                           accept="image/*"
-                          onChange={(e) =>
-                            handleServiceImageUpload(index, e)
-                          }
+                          onChange={(e) => handleServiceImageUpload(index, e)}
                           className="block w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm text-slate-700 file:mr-4 file:rounded-xl file:border-0 file:bg-slate-900 file:px-4 file:py-2 file:text-sm file:font-medium file:text-white"
                         />
+                        {serviceUploadState[index] && (
+                          <p className="mt-2 text-sm text-sky-600">
+                            Uploading service image...
+                          </p>
+                        )}
                         {service.image && (
                           <div className="mt-4">
                             <img
@@ -385,7 +434,6 @@ export default function EditClient({
             </section>
           )}
 
-          {/* STEP 3 — Contact */}
           {step === 3 && (
             <section>
               <h2 className="text-xl font-semibold text-slate-900">
@@ -470,7 +518,6 @@ export default function EditClient({
             </section>
           )}
 
-          {/* STEP 4 — Preview */}
           {step === 4 && (
             <section>
               <h2 className="text-xl font-semibold text-slate-900">Preview</h2>
@@ -571,7 +618,6 @@ export default function EditClient({
             </section>
           )}
 
-          {/* Navigation Buttons */}
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <button
               type="button"
@@ -587,22 +633,27 @@ export default function EditClient({
                 type="button"
                 onClick={nextStep}
                 disabled={
+                  hasPendingUpload ||
                   (step === 1 && !isStepOneValid) ||
                   (step === 2 && !isStepTwoValid) ||
                   (step === 3 && !isStepThreeValid)
                 }
                 className="w-full rounded-2xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
               >
-                Next
+                {hasPendingUpload ? 'Waiting for uploads...' : 'Next'}
               </button>
             ) : (
               <button
                 type="button"
                 onClick={saveChanges}
-                disabled={isSaving}
+                disabled={isSaving || hasPendingUpload}
                 className="w-full rounded-2xl bg-sky-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-sky-700 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
               >
-                {isSaving ? 'Saving...' : 'Save Changes'}
+                {isSaving
+                  ? 'Saving...'
+                  : hasPendingUpload
+                    ? 'Waiting for uploads...'
+                    : 'Save Changes'}
               </button>
             )}
           </div>
@@ -610,16 +661,4 @@ export default function EditClient({
       </div>
     </div>
   );
-}
-
-function fileToBase64(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      if (typeof reader.result === 'string') resolve(reader.result);
-      else reject(new Error('Failed to convert file to base64.'));
-    };
-    reader.onerror = () => reject(new Error('File reading failed.'));
-    reader.readAsDataURL(file);
-  });
 }

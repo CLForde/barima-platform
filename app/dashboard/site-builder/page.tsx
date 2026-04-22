@@ -2,6 +2,7 @@
 
 import { ChangeEvent, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { uploadSiteImage } from '@/lib/image-upload';
 
 type Service = {
   name: string;
@@ -34,6 +35,12 @@ export default function SiteBuilderPage() {
 
   const [step, setStep] = useState(1);
   const [isPublishing, setIsPublishing] = useState(false);
+  const [isHeroUploading, setIsHeroUploading] = useState(false);
+  const [serviceUploadState, setServiceUploadState] = useState<boolean[]>([
+    false,
+    false,
+    false,
+  ]);
 
   const [formData, setFormData] = useState<FormDataType>({
     siteName: '',
@@ -48,6 +55,18 @@ export default function SiteBuilderPage() {
   });
 
   const totalSteps = 4;
+
+  const uploadFolder = useMemo(() => {
+    const trimmedName = formData.siteName.trim();
+    if (!trimmedName) {
+      return 'draft-site';
+    }
+
+    return `site-${trimmedName}`;
+  }, [formData.siteName]);
+
+  const hasPendingUpload =
+    isHeroUploading || serviceUploadState.some((isUploading) => isUploading);
 
   const filledServices = useMemo(() => {
     return formData.services.filter(
@@ -88,6 +107,37 @@ export default function SiteBuilderPage() {
     });
   };
 
+  const setServiceUploading = (index: number, value: boolean) => {
+    setServiceUploadState((prev) => {
+      const next = [...prev];
+      next[index] = value;
+      return next;
+    });
+  };
+
+  const handleHeroImageUpload = async (
+    event: ChangeEvent<HTMLInputElement>,
+  ) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setIsHeroUploading(true);
+      const imageUrl = await uploadSiteImage(file, `${uploadFolder}/hero`);
+      setFormData((prev) => ({ ...prev, heroImage: imageUrl }));
+    } catch (error) {
+      console.error('Failed to upload hero image:', error);
+      alert(
+        error instanceof Error
+          ? error.message
+          : 'Could not upload that image. Please try again.',
+      );
+    } finally {
+      setIsHeroUploading(false);
+      event.target.value = '';
+    }
+  };
+
   const handleServiceImageUpload = async (
     index: number,
     event: ChangeEvent<HTMLInputElement>,
@@ -96,11 +146,22 @@ export default function SiteBuilderPage() {
     if (!file) return;
 
     try {
-      const base64 = await fileToBase64(file);
-      updateServiceField(index, 'image', base64);
+      setServiceUploading(index, true);
+      const imageUrl = await uploadSiteImage(
+        file,
+        `${uploadFolder}/services/service-${index + 1}`,
+      );
+      updateServiceField(index, 'image', imageUrl);
     } catch (error) {
-      console.error('Failed to read image file:', error);
-      alert('Could not read that image. Please try another file.');
+      console.error('Failed to upload service image:', error);
+      alert(
+        error instanceof Error
+          ? error.message
+          : 'Could not upload that image. Please try again.',
+      );
+    } finally {
+      setServiceUploading(index, false);
+      event.target.value = '';
     }
   };
 
@@ -254,20 +315,14 @@ export default function SiteBuilderPage() {
                   id='heroImage'
                   type='file'
                   accept='image/*'
-                  onChange={async (e) => {
-                    const file = e.target.files?.[0];
-                    if (!file) return;
-                    try {
-                      const base64 = await fileToBase64(file);
-                      setFormData((prev) => ({ ...prev, heroImage: base64 }));
-                    } catch {
-                      alert(
-                        'Could not read that image. Please try another file.',
-                      );
-                    }
-                  }}
+                  onChange={handleHeroImageUpload}
                   className='block w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm text-slate-700 file:mr-4 file:rounded-xl file:border-0 file:bg-slate-900 file:px-4 file:py-2 file:text-sm file:font-medium file:text-white'
                 />
+                {isHeroUploading && (
+                  <p className='mt-2 text-sm text-sky-600'>
+                    Uploading hero image...
+                  </p>
+                )}
                 {formData.heroImage && (
                   <div className='mt-4'>
                     <img
@@ -384,6 +439,12 @@ export default function SiteBuilderPage() {
                           onChange={(e) => handleServiceImageUpload(index, e)}
                           className='block w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm text-slate-700 file:mr-4 file:rounded-xl file:border-0 file:bg-slate-900 file:px-4 file:py-2 file:text-sm file:font-medium file:text-white'
                         />
+
+                        {serviceUploadState[index] && (
+                          <p className='mt-2 text-sm text-sky-600'>
+                            Uploading service image...
+                          </p>
+                        )}
 
                         {service.image && (
                           <div className='mt-4'>
@@ -667,22 +728,27 @@ Sun: 8am - 5pm`}
                 type='button'
                 onClick={nextStep}
                 disabled={
+                  hasPendingUpload ||
                   (step === 1 && !isStepOneValid) ||
                   (step === 2 && !isStepTwoValid) ||
                   (step === 3 && !isStepThreeValid)
                 }
                 className='w-full rounded-2xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto'
               >
-                Next
+                {hasPendingUpload ? 'Waiting for uploads...' : 'Next'}
               </button>
             ) : (
               <button
                 type='button'
                 onClick={publishSite}
-                disabled={isPublishing}
+                disabled={isPublishing || hasPendingUpload}
                 className='w-full rounded-2xl bg-sky-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-sky-700 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto'
               >
-                {isPublishing ? 'Publishing...' : 'Publish'}
+                {isPublishing
+                  ? 'Publishing...'
+                  : hasPendingUpload
+                    ? 'Waiting for uploads...'
+                    : 'Publish'}
               </button>
             )}
           </div>
@@ -690,24 +756,4 @@ Sun: 8am - 5pm`}
       </div>
     </div>
   );
-}
-
-function fileToBase64(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-
-    reader.onload = () => {
-      if (typeof reader.result === 'string') {
-        resolve(reader.result);
-      } else {
-        reject(new Error('Failed to convert file to base64.'));
-      }
-    };
-
-    reader.onerror = () => {
-      reject(new Error('File reading failed.'));
-    };
-
-    reader.readAsDataURL(file);
-  });
 }
